@@ -35,14 +35,28 @@ userRouter.patch('/', async(req,res)=>{
     const{password} = req.body
 })
 
-userRouter.delete('/:username', authorizationCheck, async() => {
+userRouter.post('/create', authorizationCheck, async () => {
+
+})
+
+userRouter.delete('/:username', authorizationCheck, async(req, res) => {
     // Lay username tu params
-    
-    // Tim xem user co trong db khong??
-
-    // Xoa
-
-    res.send('Da xoa')
+    const username = req.params.username
+    // Check xem username co phai cua user hien tai khong?
+    const currentUser = req.user
+    if (currentUser.username === username) {
+        res.status(400).send('Khong the xoa user nay')
+        return
+    }
+    // Tim xem user co trong db khong?? userModel.findOne({username})
+    const user = await userModel.findOne({username})
+    // Neu co thi xoa
+    if (user) {
+        await userModel.deleteOne({username})
+        res.send('Da xoa,')
+    } else {
+        res.send('Khong co user')
+    }
 })
 
 module.exports = { userRouter }
