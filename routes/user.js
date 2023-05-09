@@ -31,8 +31,24 @@ userRouter.get('/', authorizationCheck, async (req,res)=>{
     const user = req.user
 })
 
-userRouter.patch('/', async(req,res)=>{
-    const{password} = req.body
+// Update role cua user
+userRouter.patch('/:username', authorizationCheck, async(req,res)=>{
+    const {role, song} = req.body
+    const username = req.params.username
+    // Tim xem co user khong findOne
+    const user = await userModel.findOne({username})
+    // Neu co thi xoa
+    if (user) {
+        // Update role cho user nay updateOne
+        // await userModel.updateOne({username}, {role})
+        // const user = await userModel.findOne({username})
+        // const user = await userModel.findOneAndUpdate({username}, {role}, {new: true})
+        const user = await userModel.findOneAndUpdate({username}, {$push: {songs: song}}, {new: true})
+        // Gui lai user duoc update cho client
+        res.send(user)
+    } else {
+        res.send('Khong co user')
+    }
 })
 
 userRouter.post('/create', authorizationCheck, async () => {

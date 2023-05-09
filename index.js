@@ -4,6 +4,7 @@ const { userRouter } = require('./routes/user')
 const jwt = require('jsonwebtoken')
 const { users, userModel } = require('./models/user')
 const bcrypt = require('bcrypt')
+const { songRouter } = require('./routes/song')
 
 const app = express()
 
@@ -14,7 +15,7 @@ const authenticationCheck = async (req, res, next) => {
     const decoded = jwt.verify(token, '123@lol');
     const { username } = decoded
     // Check user co trong co so du lieu khong 
-    const user = await userModel.findOne({ username: username })
+    const user = await userModel.findOne({ username: username }).populate('songs').select('username')
 
     if (user) {
         req.user = user
@@ -25,7 +26,7 @@ const authenticationCheck = async (req, res, next) => {
 }
 
 app.use('/users', authenticationCheck, userRouter)
-// app.use('/song', songRouter)
+app.use('/songs', authenticationCheck, songRouter)
 
 app.get('/', (req, res) => {
     res.send('Home router')
